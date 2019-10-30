@@ -1,0 +1,6 @@
+#
+# Hello robots!
+#
+
+user-agent: *
+disallow: /
