@@ -192,8 +192,6 @@ function _mattermost_create_user()
 
 	}
 
-	// var_dump($chat_contact);
-
 
 	// Update the Password
 	$url = sprintf('users/%s/password', $chat_contact['id']);
