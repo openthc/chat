@@ -11,7 +11,7 @@ if (empty($_SESSION['Contact']['id'])) {
 	_exit_text('Invalid Request [CAI-011]', 400);
 }
 
-// var_dump($_SESSION);
+// Chat System Contact Data
 $_SESSION['Chat_Contact'] = [];
 $_SESSION['Chat_Contact']['email'] = $_SESSION['Contact']['username'];
 $_SESSION['Chat_Contact']['username'] = preg_replace('/[^\w\-\_\.]+/', '-', $_SESSION['Contact']['username']);
@@ -23,15 +23,16 @@ $cfg = \OpenTHC\Config::get('mattermost');
 // Client
 $jar = new \GuzzleHttp\Cookie\CookieJar;
 $ghc = new \GuzzleHttp\Client([
-	'base_url' => sprintf('https://%s/api/v4/', $cfg['hostname']),
+	'base_uri' => sprintf('https://%s/api/v4/', $cfg['hostname']),
 	'allow_redirects' => false,
 	'connect_timeout' => 4.20,
 	'http_errors' => false,
-	// 'synchronous' => true,
-	// 'timeout' => 4.20,
 	'cookies' => $jar,
 	'headers' => [
-		'user-agent' => 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.70 Safari/537.36',
+		'sec-fetch-dest' => 'empty',
+		'sec-fetch-mode' => 'cors',
+		'sec-fetch-site' => 'same-origin',
+		'x-requested-with' => 'XMLHttpRequest',
 	]
 ]);
 
@@ -40,7 +41,7 @@ $res = $ghc->post('users/login', [
 	'json' => [
 		'login_id' => $_SESSION['Chat_Contact']['username'],
 		'password' => $_SESSION['Chat_Contact']['password'],
-	],
+	]
 ]);
 $res_code = $res->getStatusCode();
 // var_dump($res_code);
@@ -65,7 +66,7 @@ switch ($res_code) {
 }
 $res = $res->getBody()->getContents();
 $res = json_decode($res, true);
-var_dump($res);
+// var_dump($res);
 
 $tok = [];
 $tok['contact_id'] = $res['id'];
@@ -74,7 +75,6 @@ $cookie_list = $jar->toArray();
 foreach ($cookie_list as $c) {
 	$tok[ $c['Name'] ] = $c['Value'];
 }
-var_dump($tok);
 
 
 // Set Cookie Options
@@ -111,7 +111,7 @@ function _mattermost_create_user()
 	// Client
 	$jar = new \GuzzleHttp\Cookie\CookieJar;
 	$ghc = new \GuzzleHttp\Client([
-		'base_url' => sprintf('https://%s/api/v4/', $cfg['hostname']),
+		'base_uri' => sprintf('https://%s/api/v4/', $cfg['hostname']),
 		'allow_redirects' => false,
 		'connect_timeout' => 4.20,
 		'http_errors' => false,
@@ -139,7 +139,7 @@ function _mattermost_create_user()
 	$tok = $res->getHeaderLine('token');
 	// var_dump($tok);
 	$ghc = new \GuzzleHttp\Client([
-		'base_url' => sprintf('https://%s/api/v4/', $cfg['hostname']),
+		'base_uri' => sprintf('https://%s/api/v4/', $cfg['hostname']),
 		'allow_redirects' => false,
 		'connect_timeout' => 4.20,
 		'http_errors' => false,
@@ -173,8 +173,8 @@ function _mattermost_create_user()
 					'email' => $_SESSION['Chat_Contact']['email'],
 					'username' => $_SESSION['Chat_Contact']['username'],
 					'password' => $_SESSION['Chat_Contact']['password'],
-					'auth_data' => $_SESSION['Contact']['id'],
-					'auth_service' => 'email',
+					// 'auth_data' => $_SESSION['Contact']['id'],
+					// 'auth_service' => 'email',
 					'notify_props' => [
 						'email' => false,
 						'desktop' => 'all',

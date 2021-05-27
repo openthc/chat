@@ -29,13 +29,13 @@ if (empty($tok0)) {
 	_exit_html('<p>Invalid Access Token [CAB-044]</p>', 400);
 }
 
-$tok0 = json_decode(json_encode($tok0), true);
-
-if (empty($tok0['access_token'])) {
+// Token OK?
+$tok0a = json_decode(json_encode($tok0), true);
+if (empty($tok0a['access_token'])) {
 	_exit_html('<p>Invalid Access Token [CAB-054]</p>', 400);
 }
 
-if (empty($tok0['token_type'])) {
+if (empty($tok0a['token_type'])) {
 	_exit_html('<p>Invalid Access Token [CAB-058]</p>', 400);
 }
 
@@ -43,10 +43,19 @@ if (empty($tok0['token_type'])) {
 // resource owner.
 try {
 
-	$tok1 = $ocp->getResourceOwner($tok);
+	$tok1 = $ocp->getResourceOwner($tok0);
 	$tok1 = $tok1->toArray();
 
-	$tok1['scope'] = explode(' ', $tok1['scope']);
+	$pass = false;
+	if (is_array($tok1['scope'])) {
+		if (in_array('chat', $tok1['scope'])) {
+			$pass = true;
+		}
+	}
+
+	if (!$pass) {
+		_exit_text('Access Denied [CAB-057]', 403);
+	}
 
 	$_SESSION['Contact'] = $tok1['Contact'];
 	$_SESSION['Company'] = $tok1['Company'];
