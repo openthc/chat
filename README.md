@@ -33,6 +33,8 @@ It's default configuration is to forward all traffic, except for PHP stuff, to M
 
 ## Configure Certbot
 
+ * @see https://eff-certbot.readthedocs.io/en/stable/using.html#setting-up-automated-renewal
+
 Add this so Nginx restarts when it gets a new certificate
 
 ```
