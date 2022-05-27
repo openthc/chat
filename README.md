@@ -30,3 +30,17 @@ ln -s ./mattermost-5.35.1 ./mattermost
 
 Use nginx as a proxy, following the example configuration.
 It's default configuration is to forward all traffic, except for PHP stuff, to Mattermost.
+
+## Configure Certbot
+
+Add this so Nginx restarts when it gets a new certificate
+
+```
+cat <<<EOF > /etc/letsencrypt/renewal-hooks/deploy/nginx.sh 
+#!/bin/sh
+
+systemctl restart nginx
+EOF
+chmod 0755 /etc/letsencrypt/renewal-hooks/deploy/nginx.sh
+```
+
