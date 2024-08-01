@@ -1,5 +1,6 @@
+# OpenTHC Chat Robots.txt
 #
-# Hello robots!
+# Nobody Allowed
 #
 
 user-agent: *
