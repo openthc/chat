@@ -11,11 +11,10 @@
 		}
 	},
 	"require": {
-		"league/oauth2-client": "2.6.1",
-		"openthc/common": "dev-master"
+		"openthc/common": "dev-main"
 	},
 	"require-dev": {
-		"phpstan/phpstan": "1.10.5",
-		"phpunit/phpunit": "9.6.4"
+		"phpstan/phpstan": "2.1.8",
+		"phpunit/phpunit": "9.6.20"
 	}
 }
