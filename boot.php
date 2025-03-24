@@ -29,9 +29,9 @@ function _oauth_provider()
 		'clientId' => $cfg['public'],
 		'clientSecret' => $cfg['secret'],
 		'redirectUri' => $url,
-		'urlAuthorize' => sprintf('https://%s/oauth2/authorize', $cfg['hostname']),
-		'urlAccessToken' => sprintf('https://%s/oauth2/token', $cfg['hostname']),
-		'urlResourceOwnerDetails' => sprintf('https://%s/oauth2/profile', $cfg['hostname']),
+		'urlAuthorize' => sprintf('%s/oauth2/authorize', $cfg['origin']),
+		'urlAccessToken' => sprintf('%s/oauth2/token', $cfg['origin']),
+		'urlResourceOwnerDetails' => sprintf('%s/oauth2/profile', $cfg['origin']),
 		'verify' => true
 	]);
 
