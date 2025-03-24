@@ -23,11 +23,11 @@
         "IdleTimeout": 60,
         "MaximumLoginAttempts": 10,
         "GoroutineHealthThreshold": -1,
-        "EnableOAuthServiceProvider": true,
+        "EnableOAuthServiceProvider": false,
         "EnableIncomingWebhooks": true,
         "EnableOutgoingWebhooks": true,
         "EnableOutgoingOAuthConnections": false,
-        "EnableCommands": true,
+        "EnableCommands": false,
         "OutgoingIntegrationRequestsTimeout": 30,
         "EnablePostUsernameOverride": false,
         "EnablePostIconOverride": false,
@@ -39,7 +39,7 @@
         "EnableDeveloper": false,
         "DeveloperFlags": "",
         "EnableClientPerformanceDebugging": false,
-        "EnableSecurityFixAlert": true,
+        "EnableSecurityFixAlert": false,
         "EnableInsecureOutgoingConnections": false,
         "AllowedUntrustedInternalConnections": "",
         "EnableMultifactorAuthentication": false,
@@ -63,7 +63,7 @@
         "WebsocketSecurePort": 443,
         "WebsocketPort": 80,
         "WebserverMode": "gzip",
-        "EnableGifPicker": true,
+        "EnableGifPicker": false,
         "GiphySdkKey": "",
         "EnableCustomEmoji": true,
         "EnableEmojiPicker": true,
@@ -121,17 +121,17 @@
         "FrameAncestors": ""
     },
     "TeamSettings": {
-        "SiteName": "Mattermost",
+        "SiteName": "Chat OpenTHC",
         "MaxUsersPerTeam": 50,
-        "EnableJoinLeaveMessageByDefault": true,
-        "EnableUserCreation": true,
+        "EnableJoinLeaveMessageByDefault": false,
+        "EnableUserCreation": false,
         "EnableOpenServer": false,
         "EnableUserDeactivation": false,
         "RestrictCreationToDomains": "",
-        "EnableCustomUserStatuses": true,
+        "EnableCustomUserStatuses": false,
         "EnableCustomBrand": false,
         "CustomBrandText": "",
-        "CustomDescriptionText": "",
+        "CustomDescriptionText": "OpenTHC Industry Chat",
         "RestrictDirectMessage": "any",
         "EnableLastActiveTime": true,
         "UserStatusAwayTimeout": 300,
@@ -211,7 +211,7 @@
         "Number": false,
         "Uppercase": false,
         "Symbol": false,
-        "EnableForgotLink": true
+        "EnableForgotLink": false
     },
     "FileSettings": {
         "EnableFileAttachments": true,
@@ -259,9 +259,9 @@
         "ExportAmazonS3StorageClass": ""
     },
     "EmailSettings": {
-        "EnableSignUpWithEmail": true,
+        "EnableSignUpWithEmail": false,
         "EnableSignInWithEmail": true,
-        "EnableSignInWithUsername": true,
+        "EnableSignInWithUsername": false,
         "SendEmailNotifications": false,
         "UseChannelInEmailNotifications": false,
         "RequireEmailVerification": false,
@@ -300,20 +300,20 @@
         "VaryByHeader": ""
     },
     "PrivacySettings": {
-        "ShowEmailAddress": true,
+        "ShowEmailAddress": false,
         "ShowFullName": true
     },
     "SupportSettings": {
-        "TermsOfServiceLink": "https://mattermost.com/pl/terms-of-use/",
-        "PrivacyPolicyLink": "https://mattermost.com/pl/privacy-policy/",
-        "AboutLink": "https://mattermost.com/pl/about-mattermost",
-        "HelpLink": "https://mattermost.com/pl/help/",
-        "ReportAProblemLink": "https://mattermost.com/pl/report-a-bug",
-        "ForgotPasswordLink": "",
-        "SupportEmail": "",
+        "TermsOfServiceLink": "https://chat.openthc.example.com/about/tos",
+        "PrivacyPolicyLink": "https://chat.openthc.example.com/about/privacy-policy",
+        "AboutLink": "https://chat.openthc.example.com/pl/about-mattermost",
+        "HelpLink": "https://chat.openthc.example.com/help",
+        "ReportAProblemLink": "https://chat.openthc.example.com/help",
+        "ForgotPasswordLink": "https://sso.openthc.example.com/auth/open?a=forgot-password",
+        "SupportEmail": "help@openthc.example.com",
         "CustomTermsOfServiceEnabled": false,
         "CustomTermsOfServiceReAcceptancePeriod": 365,
-        "EnableAskCommunityLink": true
+        "EnableAskCommunityLink": false
     },
     "AnnouncementSettings": {
         "EnableBanner": false,
@@ -593,7 +593,7 @@
         "CleanupConfigThresholdDays": -1
     },
     "PluginSettings": {
-        "Enable": true,
+        "Enable": false,
         "EnableUploads": false,
         "AllowInsecureDownloadURL": false,
         "EnableHealthCheck": true,
@@ -602,22 +602,22 @@
         "Plugins": {},
         "PluginStates": {
             "com.mattermost.calls": {
-                "Enable": true
+                "Enable": false
             },
             "com.mattermost.nps": {
-                "Enable": true
+                "Enable": false
             },
             "mattermost-ai": {
-                "Enable": true
+                "Enable": false
             },
             "playbooks": {
-                "Enable": true
+                "Enable": false
             }
         },
-        "EnableMarketplace": true,
+        "EnableMarketplace": false,
         "EnableRemoteMarketplace": true,
         "AutomaticPrepackagedPlugins": true,
-        "RequirePluginSignature": false,
+        "RequirePluginSignature": true,
         "MarketplaceURL": "https://api.integrations.mattermost.com",
         "SignaturePublicKeyFiles": [],
         "ChimeraOAuthProxyURL": ""

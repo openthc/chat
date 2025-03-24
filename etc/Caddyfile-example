@@ -1,0 +1,29 @@
+#
+# Example Caddyfile
+#
+
+chat.openthc.dev {
+
+	rewrite /auth/open /auth/open.php
+	rewrite /auth/back /auth/back.php
+	rewrite /auth/init /auth/init.php
+
+	handle /auth/* {
+		root * /opt/openthc/chat/webroot/
+		import common404
+		file_server
+		php_fastcgi unix//run/php/php7.4-fpm.sock {
+			try_files {path}
+			# {path}/index.html {path}/index.php main.php
+		}
+
+	}
+
+	handle {
+		root * /opt/openthc/chat/webroot/
+		import common404
+		reverse_proxy 127.0.0.1:8065
+	}
+
+
+}
