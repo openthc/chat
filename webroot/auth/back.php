@@ -64,7 +64,7 @@ try {
 	header('location: /auth/init?' . http_build_query(['r' => $_GET['r'] ]));
 
 } catch (\Exception $e) {
-	_exit_html('<p>Failure: ' . $e->getMessage() . '</p>', 500);
+	_exit_html(sprintf('<p>Failure: %s</p>', $e->getMessage()), 500);
 }
 
 exit(0);

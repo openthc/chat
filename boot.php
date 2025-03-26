@@ -26,8 +26,8 @@ function _oauth_provider()
 	$url = sprintf('https://%s/auth/back?%s', $_SERVER['SERVER_NAME'], http_build_query(array('r' => $r)));
 	$url = trim($url, '?');
 	$ocp = new \League\OAuth2\Client\Provider\GenericProvider([
-		'clientId' => $cfg['public'],
-		'clientSecret' => $cfg['secret'],
+		'clientId' => $cfg['client-pk'],
+		'clientSecret' => $cfg['client-sk'],
 		'redirectUri' => $url,
 		'urlAuthorize' => sprintf('%s/oauth2/authorize', $cfg['origin']),
 		'urlAccessToken' => sprintf('%s/oauth2/token', $cfg['origin']),
