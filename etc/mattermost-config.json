@@ -304,11 +304,11 @@
         "ShowFullName": true
     },
     "SupportSettings": {
-        "TermsOfServiceLink": "https://chat.openthc.example.com/about/tos",
-        "PrivacyPolicyLink": "https://chat.openthc.example.com/about/privacy-policy",
-        "AboutLink": "https://chat.openthc.example.com/pl/about-mattermost",
-        "HelpLink": "https://chat.openthc.example.com/help",
-        "ReportAProblemLink": "https://chat.openthc.example.com/help",
+        "TermsOfServiceLink": "https://openthc.example.com/about/tos",
+        "PrivacyPolicyLink": "https://openthc.example.com/about/privacy",
+        "AboutLink": "https://openthc.example.com/",
+        "HelpLink": "https://openthc.example.com/help",
+        "ReportAProblemLink": "https://openthc.example.com/help/bug",
         "ForgotPasswordLink": "https://sso.openthc.example.com/auth/open?a=forgot-password",
         "SupportEmail": "help@openthc.example.com",
         "CustomTermsOfServiceEnabled": false,
