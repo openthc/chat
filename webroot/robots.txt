@@ -1,7 +1,2 @@
-# OpenTHC Chat Robots.txt
-#
-# Nobody Allowed
-#
-
 user-agent: *
 disallow: /
