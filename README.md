@@ -18,47 +18,107 @@ create database openthc_chat with owner openthc_chat;
 
 - [Download](https://mattermost.com/download/)
 - [Install Tarball](https://docs.mattermost.com/install/install-tar.html)
-
-```
-mkdir tmp
-cd tmp
-wget https://releases.mattermost.com/10.6.1/mattermost-10.6.1-linux-amd64.tar.gz
-mv mattermost ../mattermost-10.6.1
-cd ..
-ln -s mattermost-10.6.1 mattermost
-```
+- [Docker](https://docs.mattermost.com/install/install-docker.html)
 
 Then configure it.
-Use our example configuration file and change all the `openthc.example.com` to something good.
+Use our [example configuration file](etc/mattermost-config.json) and change all the `openthc.example.com` to something good.
 
 ## Create Users
 
+Have to have the config values TeamSettings.EnableUserCreation (maybe?) and  EmailSettings.EnableSignUpWithEmail both set to TRUE for setup.
+Then disable after the first user is added,
+
+https://chat.openthc.example.com/signup_user_complete
+
+
+Created my first users, via API like this
+
+
+```shell
+curl 'https://chat.openthc.example.com/api/v4/users' \
+  -H 'accept: */*' \
+  -H 'accept-language: en' \
+  -H 'content-type: application/json' \
+  -b 'rl_page_init_referrer=RudderEncrypt%3AU2FsdGVkX19SZB50SsRlGqF1jC1EFrZP0z5yC%2FlDhyo%3D; rl_page_init_referring_domain=RudderEncrypt%3AU2FsdGVkX1%2FD3Nf9TSlZLnr96w8Iav07c%2BUCHwkP0g4%3D; rl_anonymous_id=RudderEncrypt%3AU2FsdGVkX1%2BXCoN4nhwugi45%2B%2Fv72Wzl3s9hoU%2BCwkqp3M01L8nylct8E4YpyHLAuPfeQgvv9gO7OCePhuOxFQ%3D%3D; rl_group_id=RudderEncrypt%3AU2FsdGVkX18rYnk1bS3RJ8u8CaOuvoU0JjBZU65qwc0%3D; rl_group_trait=RudderEncrypt%3AU2FsdGVkX19VRuNpR0OvkEja0%2B0ivJU6XOSWdJmhPos%3D; rl_user_id=RudderEncrypt%3AU2FsdGVkX1%2B%2BJsfjpb8DXhU32DwD%2FQ0Ek8TLrCzNf0Anu3%2FBeUDCxxL5eQvkPGxm; rl_trait=RudderEncrypt%3AU2FsdGVkX1%2BynmKbjyw4fclhyHH22ZRoJszF7wKEguM%3D' \
+  -H 'origin: https://chat.openthc.example.com' \
+  -H 'priority: u=1, i' \
+  -H 'sec-ch-ua: "Chromium";v="134", "Not:A-Brand";v="24", "Google Chrome";v="134"' \
+  -H 'sec-ch-ua-mobile: ?0' \
+  -H 'sec-ch-ua-platform: "Linux"' \
+  -H 'sec-fetch-dest: empty' \
+  -H 'sec-fetch-mode: cors' \
+  -H 'sec-fetch-site: same-origin' \
+  -H 'user-agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36' \
+  -H 'x-requested-with: XMLHttpRequest' \
+  --data-raw '{"email":"root@openthc.example.com","username":"root","password":"passweed"}'
 ```
-./bin/mmctl user create --email test@openthc.dev --username 'test565' --password 'passweed'
-./bin/mmctl user create --email mbw@openthc.dev --username 'mbw' --password 'passweed'
-./bin/mmctl user create --email djb@openthc.dev --username 'djb' --password 'passweed'
+
+And made the first team like:
+
+```shell
+curl 'https://chat.openthc.example.com/api/v4/teams' \
+  -H 'accept: */*' \
+  -H 'accept-language: en' \
+  -H 'content-type: application/json' \
+  -b 'rl_page_init_referrer=RudderEncrypt%3AU2FsdGVkX19SZB50SsRlGqF1jC1EFrZP0z5yC%2FlDhyo%3D; rl_page_init_referring_domain=RudderEncrypt%3AU2FsdGVkX1%2FD3Nf9TSlZLnr96w8Iav07c%2BUCHwkP0g4%3D; rl_anonymous_id=RudderEncrypt%3AU2FsdGVkX1%2BXCoN4nhwugi45%2B%2Fv72Wzl3s9hoU%2BCwkqp3M01L8nylct8E4YpyHLAuPfeQgvv9gO7OCePhuOxFQ%3D%3D; rl_group_id=RudderEncrypt%3AU2FsdGVkX18rYnk1bS3RJ8u8CaOuvoU0JjBZU65qwc0%3D; rl_group_trait=RudderEncrypt%3AU2FsdGVkX19VRuNpR0OvkEja0%2B0ivJU6XOSWdJmhPos%3D; rl_user_id=RudderEncrypt%3AU2FsdGVkX1%2B%2BJsfjpb8DXhU32DwD%2FQ0Ek8TLrCzNf0Anu3%2FBeUDCxxL5eQvkPGxm; rl_trait=RudderEncrypt%3AU2FsdGVkX1%2BynmKbjyw4fclhyHH22ZRoJszF7wKEguM%3D; MMAUTHTOKEN=udtwmj9t4bybdjp511zmczcs6c; MMUSERID=mfd9d7zfgjgo7rnqshoittbdzh; MMCSRF=s8gofxdufin4fy6wbxmi89c94y' \
+  -H 'origin: https://chat.openthc.example.com' \
+  -H 'priority: u=1, i' \
+  -H 'sec-ch-ua: "Chromium";v="134", "Not:A-Brand";v="24", "Google Chrome";v="134"' \
+  -H 'sec-ch-ua-mobile: ?0' \
+  -H 'sec-ch-ua-platform: "Linux"' \
+  -H 'sec-fetch-dest: empty' \
+  -H 'sec-fetch-mode: cors' \
+  -H 'sec-fetch-site: same-origin' \
+  -H 'user-agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36' \
+  -H 'x-csrf-token: s8gofxdufin4fy6wbxmi89c94y' \
+  -H 'x-requested-with: XMLHttpRequest' \
+  --data-raw '{"id":"","create_at":0,"update_at":0,"delete_at":0,"display_name":"OpenTHC","name":"openthc","description":"","email":"","type":"O","company_name":"","allowed_domains":"","invite_id":"","allow_open_invite":false,"scheme_id":"","group_constrained":false}'
 ```
+
+Then it compleetes
+
+```shell
+curl 'https://chat.openthc.example.com/api/v4/system/onboarding/complete' \
+  -H 'accept: */*' \
+  -H 'accept-language: en' \
+  -H 'content-type: application/json' \
+  -b 'rl_page_init_referrer=RudderEncrypt%3AU2FsdGVkX19SZB50SsRlGqF1jC1EFrZP0z5yC%2FlDhyo%3D; rl_page_init_referring_domain=RudderEncrypt%3AU2FsdGVkX1%2FD3Nf9TSlZLnr96w8Iav07c%2BUCHwkP0g4%3D; rl_anonymous_id=RudderEncrypt%3AU2FsdGVkX1%2BXCoN4nhwugi45%2B%2Fv72Wzl3s9hoU%2BCwkqp3M01L8nylct8E4YpyHLAuPfeQgvv9gO7OCePhuOxFQ%3D%3D; rl_group_id=RudderEncrypt%3AU2FsdGVkX18rYnk1bS3RJ8u8CaOuvoU0JjBZU65qwc0%3D; rl_group_trait=RudderEncrypt%3AU2FsdGVkX19VRuNpR0OvkEja0%2B0ivJU6XOSWdJmhPos%3D; rl_user_id=RudderEncrypt%3AU2FsdGVkX1%2B%2BJsfjpb8DXhU32DwD%2FQ0Ek8TLrCzNf0Anu3%2FBeUDCxxL5eQvkPGxm; rl_trait=RudderEncrypt%3AU2FsdGVkX1%2BynmKbjyw4fclhyHH22ZRoJszF7wKEguM%3D; MMAUTHTOKEN=udtwmj9t4bybdjp511zmczcs6c; MMUSERID=mfd9d7zfgjgo7rnqshoittbdzh; MMCSRF=s8gofxdufin4fy6wbxmi89c94y' \
+  -H 'origin: https://chat.openthc.example.com' \
+  -H 'priority: u=1, i' \
+  -H 'sec-ch-ua: "Chromium";v="134", "Not:A-Brand";v="24", "Google Chrome";v="134"' \
+  -H 'sec-ch-ua-mobile: ?0' \
+  -H 'sec-ch-ua-platform: "Linux"' \
+  -H 'sec-fetch-dest: empty' \
+  -H 'sec-fetch-mode: cors' \
+  -H 'sec-fetch-site: same-origin' \
+  -H 'user-agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36' \
+  -H 'x-csrf-token: s8gofxdufin4fy6wbxmi89c94y' \
+  -H 'x-requested-with: XMLHttpRequest' \
+  --data-raw '{"organization":"OpenTHC","install_plugins":[]}'
+```
+
+```
+./bin/mmctl user create --email <SOMETHING> --username <SOMETHING> --password '<PASSWORD>'
+```
+
+The email is folded by Mattermost into lowercase and then becomes case sensitive from CLI tools.
+
+mattermost/bin/mmctl user create --email 'test+092T0800@openthc.example.com' --username 'test092T0800' --password 'passweed'
+Becomes
+mattermost/bin/mmctl team users add public 'test+092t0800@openthc.example.com'
+
+Notice te lowercase 'T'
 
 ## Create Teams
 
 ```
-./bin/mmctl team create --name 'usa-wa' --display-name "USA/Washington" --email 'root@openthc.dev'
-./bin/mmctl team create --name 'usa-nm' --display-name "USA/New Mexico" --email 'root@openthc.dev'
-./bin/mmctl team users add usa-wa test@openthc.dev
-./bin/mmctl team users add usa-or mbw@openthc.dev
-./bin/mmctl team users add usa-nm mbw@openthc.dev
-./bin/mmctl team users add usa-ny mbw@openthc.dev
-./bin/mmctl team users add usa-ny test@openthc.dev
-./bin/mmctl team users add usa-nm test@openthc.dev
-./bin/mmctl team users add usa-or test@openthc.dev
-./bin/mmctl team users add usa-or djb@openthc.dev
-./bin/mmctl team users add usa-nm djb@openthc.dev
-./bin/mmctl team users add usa-ny djb@openthc.dev
-
+./bin/mmctl team create --name 'usa-wa' --display-name "USA/Washington" --email '<SOME_EMAIL>'
+./bin/mmctl team users add <TEAM> <USER>
 ```
 
 Then you have to go into each Team and upload files and configure the other nice things in there, manually.
 Not sure how to automatically trigger that in the database/filesystem.
+
 
 ### Legacy Install
 
@@ -87,7 +147,7 @@ ln -s ./mattermost-5.35.1 ./mattermost
 Simple as this
 
 ```
-chat.openthc.dev {
+chat.openthc.example.com {
 
 	handle /auth/open {
 		root * /opt/openthc/chat/webroot/
@@ -175,4 +235,4 @@ perl -e '($f1, $f2) = m/Files (.+) and (.+) are identical/; print "rm \"$f2\"\n"
 
 - https://developers.mattermost.com/integrate/reference/server/server-reference/
 
-Our ingetration uses some PHP scripts to boot-strap the authentication from our universe.
+Our integration uses some PHP scripts to boot-strap the authentication from our universe.
