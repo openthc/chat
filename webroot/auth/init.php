@@ -5,27 +5,71 @@
 
 require_once('../../boot.php');
 
-session_start();
+if (empty($_GET['_'])) {
+	_exit_html('<p>Invalid Link [CAI-009]</p>', 400);
+}
 
-if (empty($_SESSION['Contact']['id'])) {
+if ( ! preg_match('/^[\w\-]{43}$/', $_GET['_'])) {
+	_exit_html('<p>Invalid Link [CAI-013]</p>', 400);
+}
+
+$rdb = \OpenTHC\Service\Redis::factory();
+$key = sprintf('/chat/auth/session/%s', $_GET['_']);
+$SES = $rdb->get($key);
+if (empty($SES)) {
+	_exit_html('<p>Invalid Link [CAI-020]</p>', 400);
+}
+$SES = json_decode($SES, true);
+if (empty($SES)) {
+	_exit_html('<p>Invalid Link [CAI-024]</p>', 400);
+}
+
+if (empty($SES['Contact']['id'])) {
 	_exit_text('Invalid Request [CAI-011]', 400);
 }
 
 // Chat System Contact Data
-$_SESSION['Chat_Contact'] = [];
-$_SESSION['Chat_Contact']['email'] = $_SESSION['Contact']['username'];
-$_SESSION['Chat_Contact']['username'] = preg_replace('/[^\w\-\_\.]+/', '-', $_SESSION['Contact']['username']);
-$x = sprintf('%s-%s', \OpenTHC\Config::get('salt'), $_SESSION['Contact']['username']);
-$_SESSION['Chat_Contact']['password'] = base64_encode_url( hash('sha256', $x, true) );
+$Chat_Contact = [];
+$Chat_Contact['email'] = $SES['Contact']['username'];
+$Chat_Contact['email'] = strtolower($Chat_Contact['email']);
+// $Chat_Contact['username'] = preg_replace('/[^\w\-]+/', '-', $SES['Contact']['username']);
+$Chat_Contact['username'] = strtok($SES['Contact']['username'], '@');
+
+// Locate Mattermost User
+$dbc = _dbc();
+$sql = <<<SQL
+SELECT id, email, username, password
+FROM users
+WHERE 1=0 AND username = :u0 OR email = :e0
+ORDER BY id
+SQL;
+$res = $dbc->fetchRow($sql, [
+	':e0' => $Chat_Contact['email'],
+	':u0' => $Chat_Contact['username'],
+]);
+if (empty($res['id'])) {
+	_exit_text('<h1>Invalid Account [CAI-062]</h1><p>Perhaps you should <a href="https://openthc.com/chat/invite">Request an Invite</a></p>', 401);
+}
+$Chat_Contact = $res;
+
+$pw0_hash = $res['password'];
+// $pw0_hash = password_hash('passweed', PASSWORD_BCRYPT);
+$pw1_text = _ulid();
+$pw1_hash = password_hash($pw1_text, PASSWORD_BCRYPT);
+
+$dbc->query('UPDATE users SET password = :p1 WHERE id = :c0', [
+	':c0' => $Chat_Contact['id'],
+	':p1' => $pw1_hash,
+]);
 
 $cfg = \OpenTHC\Config::get('mattermost');
 
 // Client
 $jar = new \GuzzleHttp\Cookie\CookieJar;
 $ghc = new \GuzzleHttp\Client([
-	'base_uri' => sprintf('https://%s/api/v4/', $cfg['hostname']),
+	'base_uri' => sprintf('%s/api/v4/', $cfg['origin']),
 	'allow_redirects' => false,
-	'connect_timeout' => 4.20,
+	'connect_timeout' => 4,
 	'http_errors' => false,
 	'cookies' => $jar,
 	'headers' => [
@@ -39,64 +83,74 @@ $ghc = new \GuzzleHttp\Client([
 // Try to Login as User
 $res = $ghc->post('users/login', [
 	'json' => [
-		'login_id' => $_SESSION['Chat_Contact']['username'],
-		'password' => $_SESSION['Chat_Contact']['password'],
+		'login_id' => $Chat_Contact['email'],
+		'password' => $pw1_text,
 	]
 ]);
 $res_code = $res->getStatusCode();
-// var_dump($res_code);
+$res_body = $res->getBody()->getContents();
+$SES['try-one'] = $res_code;
 switch ($res_code) {
 	case 200:
 		// Yay!!
 		break;
 	case 401:
 
-		$chat_contact = _mattermost_create_user();
+		// $chat_contact = _mattermost_create_user();
 		// var_dump($chat_contact);
 
 		$res = $ghc->post('users/login', [
 			'json' => [
-				'login_id' => $_SESSION['Chat_Contact']['email'],
-				'password' => $_SESSION['Chat_Contact']['password'],
+				'login_id' => $Chat_Contact['email'],
+				'password' => $pw1_text,
 			],
 		]);
+
+		$res_code = $res->getStatusCode();
+		$res_body = $res->getBody()->getContents();
+		$SES['try-two'] = $res_code;
 
 		break;
 
 }
-$res = $res->getBody()->getContents();
-$res = json_decode($res, true);
-// var_dump($res);
 
-$tok = [];
-$tok['contact_id'] = $res['id'];
+$dbc->query('UPDATE users SET password = :p1 WHERE id = :c0', [
+	':c0' => $Chat_Contact['id'],
+	':p1' => $pw0_hash,
+]);
 
-$cookie_list = $jar->toArray();
-foreach ($cookie_list as $c) {
-	$tok[ $c['Name'] ] = $c['Value'];
+$res = json_decode($res_body, true);
+if (empty($res['id'])) {
+	__exit_text('Invalid [CAI-122]', 401);
 }
 
-
-// Set Cookie Options
-$opt = [
-	'expires' => $_SERVER['REQUEST_TIME'] + (86400 * 30),
-	'path' => '/',
-	'domain' => $_SERVER['SERVER_NAME'],
-	'secure' => true,
-	'httponly' => true, // MMAUTHTOKEN ONLY
-	'samesite' => null,
-];
+// Copy Cookies
+$cookie_list  = [];
+$res = $jar->toArray();
+foreach ($res as $c) {
+	$c = array_change_key_case($c);
+	$cookie_list[ $c['name'] ] = $c;
+}
+// file_put_contents('/tmp/mattermost-cookies.txt', __json_encode($cookie_list, JSON_PRETTY_PRINT));
 
 // Set Cookies
-setcookie('MMAUTHTOKEN', $tok['MMAUTHTOKEN'], $opt);
-unset($opt['httponly']);
-setcookie('MMCSRF', $tok['MMCSRF'], $opt); // 0, '/', 'meta.weedtraqr.com', true, false);
-setcookie('MMUSERID', $tok['MMUSERID'], $opt);
-
+foreach ($cookie_list as $c) {
+	setcookie($c['name'], $c['value'], [
+		'domain' => $c['domain'],
+		'expires' => $c['expires'],
+		'httponly' => $c['httponly'],
+		'path' => $c['path'],
+		'samesite' => null,
+		'secure' => $c['secure'],
+	]);
+}
 
 // Redirect
-header('HTTP/1.1 302 Found', true, 302);
-header(sprintf('location: https://%s/openthc-public', $_SERVER['SERVER_NAME']));
+// header('HTTP/1.1 302 Found', true, 302);
+// header('location: /login');
+// header('location: /public/channels/town-square');
+
+doJavaScriptRedirect('/public/channels/town-square');
 
 exit(0);
 
@@ -111,7 +165,7 @@ function _mattermost_create_user()
 	// Client
 	$jar = new \GuzzleHttp\Cookie\CookieJar;
 	$ghc = new \GuzzleHttp\Client([
-		'base_uri' => sprintf('https://%s/api/v4/', $cfg['hostname']),
+		'base_uri' => sprintf('%s/api/v4/', $cfg['origin']),
 		'allow_redirects' => false,
 		'connect_timeout' => 4.20,
 		'http_errors' => false,
@@ -121,10 +175,12 @@ function _mattermost_create_user()
 	// Login as Admin
 	$res = $ghc->post('users/login', [
 		'json' => [
-			'login_id' => $cfg['username'],
-			'password' => $cfg['password'],
+			'login_id' => $cfg['root-username'],
+			'password' => $cfg['root-password'],
 		]
 	]);
+	$res_body = $res->getBody()->getContents();
+	__exit_text($res_body);
 	$res_code = $res->getStatusCode();
 	if (200 != $res_code) {
 		_exit_html('Invalid Connexion to Chat Server', 502);
@@ -139,7 +195,7 @@ function _mattermost_create_user()
 	$tok = $res->getHeaderLine('token');
 	// var_dump($tok);
 	$ghc = new \GuzzleHttp\Client([
-		'base_uri' => sprintf('https://%s/api/v4/', $cfg['hostname']),
+		'base_uri' => sprintf('%s/api/v4/', $cfg['origin']),
 		'allow_redirects' => false,
 		'connect_timeout' => 4.20,
 		'http_errors' => false,
@@ -153,7 +209,7 @@ function _mattermost_create_user()
 
 
 	// Get the User
-	$url = sprintf('users/email/%s', $_SESSION['Chat_Contact']['email']);
+	$url = sprintf('users/email/%s', $SES['Chat_Contact']['email']);
 	// var_dump($url);
 	$res = $ghc->get($url);
 	$res_code = $res->getStatusCode();
@@ -170,10 +226,10 @@ function _mattermost_create_user()
 			// Create the User
 			$arg = [
 				'json' => [
-					'email' => $_SESSION['Chat_Contact']['email'],
-					'username' => $_SESSION['Chat_Contact']['username'],
-					'password' => $_SESSION['Chat_Contact']['password'],
-					// 'auth_data' => $_SESSION['Contact']['id'],
+					'email' => $SES['Chat_Contact']['email'],
+					'username' => $SES['Chat_Contact']['username'],
+					'password' => $SES['Chat_Contact']['password'],
+					// 'auth_data' => $SES['Contact']['id'],
 					// 'auth_service' => 'email',
 					'notify_props' => [
 						'email' => false,
@@ -198,7 +254,7 @@ function _mattermost_create_user()
 	// var_dump($url);
 	$res = $ghc->put($url, [
 		'json' => [
-			'new_password' => $_SESSION['Chat_Contact']['password']
+			'new_password' => $SES['Chat_Contact']['password']
 		]
 	]);
 	$res = $res->getBody()->getContents();
@@ -244,8 +300,8 @@ function _mattermost_create_user()
 
 
 	return [
-		'username' => $_SESSION['Chat_Contact']['username'],
-		'password' => $_SESSION['Chat_Contact']['password'],
+		'username' => $SES['Chat_Contact']['username'],
+		'password' => $SES['Chat_Contact']['password'],
 	];
 
 	exit;

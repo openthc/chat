@@ -5,13 +5,33 @@
 
 require_once('../../boot.php');
 
-session_start();
-
-if (empty($_GET['code'])) {
+if (empty($_GET['_'])) {
 	_exit_html('<p>Invalid Link [CAB-009]</p>', 400);
 }
 
-$ocp = _oauth_provider();
+if (empty($_GET['code'])) {
+	_exit_html('<p>Invalid Link [CAB-013]</p>', 400);
+}
+
+if ( ! preg_match('/^[\w\-]{43}$/', $_GET['_'])) {
+	_exit_html('<p>Invalid Link [CAB-017]</p>', 400);
+}
+
+$rdb = \OpenTHC\Service\Redis::factory();
+$key = sprintf('/chat/auth/session/%s', $_GET['_']);
+$SES = $rdb->get($key);
+if (empty($SES)) {
+	_exit_html('<p>Invalid Link [CAB-024]</p>', 400);
+}
+$SES = json_decode($SES, true);
+if (empty($SES)) {
+	_exit_html('<p>Invalid Link [CAB-028]</p>', 400);
+}
+
+$ocp = _oauth_provider($SES['id']);
+
+// __exit_text($SES);
+
 
 // Check State
 // $this->checkState();
@@ -57,11 +77,13 @@ try {
 		_exit_text('Access Denied [CAB-057]', 403);
 	}
 
-	$_SESSION['Contact'] = $tok1['Contact'];
-	$_SESSION['Company'] = $tok1['Company'];
+	$SES['Contact'] = $tok1['Contact'];
+	$SES['Company'] = $tok1['Company'];
+
+	$rdb->set($SES['key'], json_encode($SES));
 
 	header('HTTP/1.1 302 Found', true, 302);
-	header('location: /auth/init?' . http_build_query(['r' => $_GET['r'] ]));
+	header(sprintf('location: /auth/init?_=%s', $SES['id']));
 
 } catch (\Exception $e) {
 	_exit_html(sprintf('<p>Failure: %s</p>', $e->getMessage()), 500);
