@@ -19,11 +19,14 @@ chat.openthc.dev {
 
 	}
 
-	handle {
+	handle_path / {
 		root * /opt/openthc/chat/webroot/
 		import common404
-		reverse_proxy 127.0.0.1:8065
+		file_server
 	}
 
+	handle_path /* {
+		reverse_proxy /* 127.0.0.1:8065
+	}
 
 }
