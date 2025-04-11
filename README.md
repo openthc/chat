@@ -24,27 +24,27 @@ Then configure it.
 Use our [example configuration file](etc/mattermost-config.json) and change all the `openthc.example.com` to something good.
 
 
-## Create Users
+## Create First (root) User
 
 Have to have the config values TeamSettings.EnableUserCreation (maybe?) and  EmailSettings.EnableSignUpWithEmail both set to TRUE for setup.
-Then disable after the first user is added,
-
-https://chat.openthc.example.com/signup_user_complete
+Then disable after the first user is added.
 
 ```
-./bin/mmctl user create --email <SOMETHING> --username <SOMETHING> --password '<PASSWORD>'
+./mattermost/bin/mmctl user create --email <SOMETHING> --username <SOMETHING> --password '<PASSWORD>'
+./mattermost/bin/mmctl auth login https://chat.openthc.example.com/
 ```
+
+Then put the token from `~/.config/mmctl/config` into `etc/config.php`
 
 
 ## Create Teams
 
 ```
-./bin/mmctl team create --name 'usa-wa' --display-name "USA/Washington" --email '<SOME_EMAIL>'
-./bin/mmctl team users add <TEAM> <USER>
+./bin/chat-init.sh
 ```
 
 Then you have to go into each Team and upload files and configure the other nice things in there, manually.
-Not sure how to automatically trigger that in the database/filesystem.
+
 
 ## Permissions
 
