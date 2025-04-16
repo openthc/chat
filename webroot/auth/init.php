@@ -40,7 +40,7 @@ $dbc = _dbc();
 $sql = <<<SQL
 SELECT id, email, username, password
 FROM users
-WHERE 1=0 AND username = :u0 OR email = :e0
+WHERE username = :u0 OR email = :e0
 ORDER BY id
 SQL;
 $res = $dbc->fetchRow($sql, [
@@ -48,7 +48,7 @@ $res = $dbc->fetchRow($sql, [
 	':u0' => $Chat_Contact['username'],
 ]);
 if (empty($res['id'])) {
-	_exit_text('<h1>Invalid Account [CAI-062]</h1><p>Perhaps you should <a href="https://openthc.com/chat/invite">Request an Invite</a></p>', 401);
+	_exit_html('<h1>Invalid Account [CAI-062]</h1><p>Perhaps you should <a href="https://openthc.com/chat/invite">Request an Invite</a></p>', 401);
 }
 $Chat_Contact = $res;
 
@@ -130,7 +130,7 @@ case 502:
 
 $res = json_decode($res_body, true);
 if (empty($res['id'])) {
-	__exit_text('Invalid [CAI-122]', 401);
+	_exit_text('Invalid [CAI-122]', 401);
 }
 
 // Copy Cookies
