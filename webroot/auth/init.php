@@ -80,44 +80,53 @@ $ghc = new \GuzzleHttp\Client([
 	]
 ]);
 
-// Try to Login as User
-$res = $ghc->post('users/login', [
-	'json' => [
+$try_idx = 0;
+$try_max = 3;
+do {
+
+	$try_idx++;
+	$SES['try-idx'] = $try_idx;
+
+	// Try to Login as User
+	$res = $ghc->post('users/login', [ 'json' => [
 		'login_id' => $Chat_Contact['email'],
 		'password' => $pw1_text,
-	]
-]);
-$res_code = $res->getStatusCode();
-$res_body = $res->getBody()->getContents();
-$SES['try-one'] = $res_code;
-switch ($res_code) {
+	]]);
+	$res_code = $res->getStatusCode();
+	$res_body = $res->getBody()->getContents();
+	switch ($res_code) {
 	case 200:
 		// Yay!!
+		$try_idx = $try_max + 1;
 		break;
 	case 401:
-
-		// $chat_contact = _mattermost_create_user();
-		// var_dump($chat_contact);
-
-		$res = $ghc->post('users/login', [
-			'json' => [
-				'login_id' => $Chat_Contact['email'],
-				'password' => $pw1_text,
-			],
-		]);
-
-		$res_code = $res->getStatusCode();
-		$res_body = $res->getBody()->getContents();
-		$SES['try-two'] = $res_code;
-
 		break;
+	case 502:
+		$try_idx = $try_max + 1;
+		// _exit_text('Chat Services Offline', 502);
+		break;
+	// default:
+	// 	throw new \Exception('Invalid Response');
+	}
 
-}
+} while ($try_idx <= $try_max);
 
 $dbc->query('UPDATE users SET password = :p1 WHERE id = :c0', [
 	':c0' => $Chat_Contact['id'],
 	':p1' => $pw0_hash,
 ]);
+
+switch ($res_code) {
+case 200:
+	// OK
+	break;
+case 401:
+	_exit_text('Authentication Failure', 401);
+	break;
+case 502:
+	_exit_text('Chat Services Offline', 502);
+	break;
+}
 
 $res = json_decode($res_body, true);
 if (empty($res['id'])) {
@@ -153,157 +162,3 @@ foreach ($cookie_list as $c) {
 doJavaScriptRedirect('/public/channels/town-square');
 
 exit(0);
-
-
-/**
- *
- */
-function _mattermost_create_user()
-{
-	$cfg = \OpenTHC\Config::get('mattermost');
-
-	// Client
-	$jar = new \GuzzleHttp\Cookie\CookieJar;
-	$ghc = new \GuzzleHttp\Client([
-		'base_uri' => sprintf('%s/api/v4/', $cfg['origin']),
-		'allow_redirects' => false,
-		'connect_timeout' => 4.20,
-		'http_errors' => false,
-		'cookies' => $jar,
-	]);
-
-	// Login as Admin
-	$res = $ghc->post('users/login', [
-		'json' => [
-			'login_id' => $cfg['root-username'],
-			'password' => $cfg['root-password'],
-		]
-	]);
-	$res_body = $res->getBody()->getContents();
-	__exit_text($res_body);
-	$res_code = $res->getStatusCode();
-	if (200 != $res_code) {
-		_exit_html('Invalid Connexion to Chat Server', 502);
-	}
-
-	// $head = $res->getHeaders();
-	// var_dump($head);
-	// $res = $res->getBody()->getContents();
-	// $res = json_decode($res, true);
-	// var_dump($res);
-
-	$tok = $res->getHeaderLine('token');
-	// var_dump($tok);
-	$ghc = new \GuzzleHttp\Client([
-		'base_uri' => sprintf('%s/api/v4/', $cfg['origin']),
-		'allow_redirects' => false,
-		'connect_timeout' => 4.20,
-		'http_errors' => false,
-		// 'synchronous' => true,
-		// 'timeout' => 4.20,
-		'cookies' => $jar,
-		'headers' => [
-			'authorization' => sprintf('Bearer %s', $tok)
-		]
-	]);
-
-
-	// Get the User
-	$url = sprintf('users/email/%s', $SES['Chat_Contact']['email']);
-	// var_dump($url);
-	$res = $ghc->get($url);
-	$res_code = $res->getStatusCode();
-	$res = $res->getBody()->getContents();
-	$res = json_decode($res, true);
-	// var_dump($res);
-
-	switch ($res_code) {
-		case 200:
-			$chat_contact = $res;
-			break;
-		case 404:
-
-			// Create the User
-			$arg = [
-				'json' => [
-					'email' => $SES['Chat_Contact']['email'],
-					'username' => $SES['Chat_Contact']['username'],
-					'password' => $SES['Chat_Contact']['password'],
-					// 'auth_data' => $SES['Contact']['id'],
-					// 'auth_service' => 'email',
-					'notify_props' => [
-						'email' => false,
-						'desktop' => 'all',
-					]
-				]
-			];
-			var_dump($arg);
-
-			$res = $ghc->post('users', $arg);
-			$res = $res->getBody()->getContents();
-			$res = json_decode($res, true);
-			var_dump($res);
-
-			$chat_contact = $res;
-
-	}
-
-
-	// Update the Password
-	$url = sprintf('users/%s/password', $chat_contact['id']);
-	// var_dump($url);
-	$res = $ghc->put($url, [
-		'json' => [
-			'new_password' => $SES['Chat_Contact']['password']
-		]
-	]);
-	$res = $res->getBody()->getContents();
-	$res = json_decode($res, true);
-	// var_dump($res);
-
-
-	// Verify the Email
-	$url = sprintf('users/%s/email/verify/member', $chat_contact['id']);
-	// var_dump($url);
-	$res = $ghc->post($url, [
-		'json' => [],
-	]);
-	$res = $res->getBody()->getContents();
-	$res = json_decode($res, true);
-	// var_dump($res);
-
-	// Add User to Team
-	// $res = $ghc->get('teams', [
-	// ]);
-	// $res = $res->getBody()->getContents();
-	// $res = json_decode($res, true);
-	// var_dump($res);
-
-	// openthc-public
-	$team = [
-		'id' => $cfg['team_default'],
-	];
-
-	// Add Member
-	$url = sprintf('teams/%s/members', $team['id']);
-	$arg = [
-		'json' => [
-			'team_id' => $team['id'],
-			'user_id' => $chat_contact['id'],
-		]
-
-	];
-	$res = $ghc->post($url, $arg);
-	$res = $res->getBody()->getContents();
-	$res = json_decode($res, true);
-	// var_dump($res);
-
-
-	return [
-		'username' => $SES['Chat_Contact']['username'],
-		'password' => $SES['Chat_Contact']['password'],
-	];
-
-	exit;
-
-}
