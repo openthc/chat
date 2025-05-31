@@ -7,34 +7,35 @@ $cfg = [];
 
 $cfg['database'] = [
 	'chat' => [
-		'hostname' => '127.0.0.01',
+		'hostname' => '10.4.20.69',
 		'username' => 'openthc_chat',
 		'password' => 'openthc_chat',
 		'database' => 'openthc_chat',
-		'dsn' => 'pgsql:host=127.0.0.01;user=openthc_chat;password=openthc_chat;dbname=openthc_chat',
+		'dsn' => 'pgsql:host=10.4.20.69;user=openthc_chat;password=openthc_chat;dbname=openthc_chat',
 	],
 ];
 
 // OpenTHC Services
 $cfg['openthc'] = [
 	'chat' => [
-		'id' => '',
+		'id' => '/* Value from Auth Database */',
 		'origin' => 'https://chat.openthc.example.com',
-		'public' => '/* Values from Auth Database */',
-		'secret' => '/* Values from Auth Database */',
+		'public' => '/* Value from Auth Database */',
+		'secret' => '/* Value from Auth Database */',
 	],
 	'sso' => [
 		'origin' => 'https://sso.openthc.example.com',
-		'public' => '/* Values from Auth Database */',
-		'client-pk' => '/* Values from Auth Database */',
-		'client-sk' => '/* Values from Auth Database */',
+		'public' => '/* Value from Auth Database */',
+		'client-id' => '/* Value from Auth Database */',
+		'client-pk' => '/* Value from Auth Database */',
+		'client-sk' => '/* Value from Auth Database */',
 	]
 ];
 
 $cfg['mattermost'] = [
 	'origin' => 'https://chat.openthc.example.com',
-	'root-id' => '7yy7o4p59if4bfkmokfcury7th',
-	'root-username' => 'root@chat.openthc.example.com',
+	'root-id' => '/* Value from Chat Database */',
+	'root-username' => '/* Value from Chat Database */',
 	'root-password' => '',
 	'root-sk' => '/* The Token */',
 	'team_default' => '/* ID */',
