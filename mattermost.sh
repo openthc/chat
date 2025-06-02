@@ -15,9 +15,10 @@ action="${1:-start}"
 case "$action" in
 start)
 	echo "START"
-	# exec \
+
 	nohup \
 		./bin/mattermost \
+		server \
 		>"./mattermost.log" \
 		2>&1 \
 		&
