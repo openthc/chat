@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+	OpenTHC PHPUnit Configuration File
+-->
+<phpunit
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.3/phpunit.xsd"
+	backupGlobals="false"
+	backupStaticAttributes="false"
+	bootstrap="../boot.php"
+	cacheResult="false"
+	colors="false"
+	convertErrorsToExceptions="true"
+	convertNoticesToExceptions="true"
+	convertWarningsToExceptions="true"
+	processIsolation="false"
+	stopOnError="true"
+	stopOnFailure="true"
+	stopOnRisky="true"
+	timeoutForSmallTests="2"
+	timeoutForMediumTests="8"
+	timeoutForLargeTests="32"
+	verbose="true"
+	>
+
+	<php>
+
+		<!-- PHPUnit populates $_ENV with these -->
+		<!-- And one can overwrite these values from standard process environment vars -->
+
+		<env name="OPENTHC_TEST_ORIGIN" value="https://chat.openthc.example.com" />
+		<env name="OPENTHC_TEST_HTTP_DEBUG" value="" />
+		<env name="OPENTHC_TEST_WEBDRIVER_URL" value="" />
+
+		<env name="OPENTHC_TEST_CONTACT0_USERNAME" value="" />
+		<env name="OPENTHC_TEST_CONTACT0_PASSWORD" value="" />
+
+		<env name="OPENTHC_TEST_PUBLIC_TEAM_ID" value="" />
+
+	</php>
+
+	<testsuites>
+		<testsuite name="All">
+			<directory>Core</directory>
+			<file>Root_Signin_Test.php</file>
+			<file>User_Create_Test.php</file>
+			<file>User_Update_Test.php</file>
+			<file>Team_Create_Test.php</file>
+			<file>User_Join_Team_Test.php</file>
+		</testsuite>
+	</testsuites>
+
+	<!-- XDEBUG_MODE=coverage (environment variable) or xdebug.mode=coverage (PHP configuration setting) has to be set -->
+	<!-- <coverage /> -->
+
+</phpunit>
