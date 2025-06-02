@@ -25,6 +25,32 @@ function _dbc()
 }
 
 /**
+ *
+ */
+function _mm_client(string $tok = '')
+{
+	$cfg = \OpenTHC\Config::get('mattermost');
+
+	// $jar = new \GuzzleHttp\Cookie\CookieJar();
+	$arg = [
+		'base_uri' => sprintf('%s/api/v4/', $cfg['origin']),
+		'allow_redirects' => false,
+		'connect_timeout' => 4.20,
+		'http_errors' => false,
+		// 'cookies' => $jar,
+	];
+	if ( ! empty($tok)) {
+		$arg['headers'] = [
+			'authorization' => sprintf('Bearer %s', $tok)
+		];
+	}
+
+	$ghc = new \GuzzleHttp\Client($arg);
+
+	return $ghc;
+}
+
+/**
  * oAuth Provider Factory
  */
 function _oauth_provider($s)
