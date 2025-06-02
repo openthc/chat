@@ -14,14 +14,20 @@ APP_ROOT=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 cd "$APP_ROOT"
 
+composer install --no-ansi --no-progress --classmap-authoritative
+
+if [ ! -f etc/config.php ]
+then
+	echo "Create etc/config.php"
+	exit 1
+fi
+
 OPENTHC_CHAT_ORIGIN="${OPENTHC_CHAT_ORIGIN:-}"
 if [ -z "$OPENTHC_CHAT_ORIGIN" ]
 then
 	echo "Set Env"
 	exit 1
 fi
-
-composer install --no-ansi --no-progress --classmap-authoritative
 
 
 #
@@ -40,32 +46,46 @@ then
 	# Make Link
 	ln -s mattermost-${MATTERMOST_VERSION} mattermost
 
+	#
+	# Configure Mattermost
+	diff -uw etc/mattermost-config.json mattermost/config/config.json || true
+
+	# Update the Config....
+	cat etc/mattermost-config.json > new-config.json
+	F0="new-config.json"
+	F1="tmp-config.json"
+
+	jq --tab ".\"ServiceSettings\".\"SiteURL\" = \"${OPENTHC_CHAT_ORIGIN}\"" \
+		"$F0" > "$F1" && mv "$F1" "$F0"
+
+	jq --tab '."ServiceSettings"."ListenAddress" = "127.0.0.1:8065"' \
+		"$F0" > "$F1" && mv "$F1" "$F0"
+
+	# Enable mmctl --local
+	jq --tab '."ServiceSettings"."EnableLocalMode" = true' \
+		"$F0" > "$F1" && mv "$F1" "$F0"
+
+	# Allow user to Create from the UI
+	jq --tab '."ServiceSettings"."EnableUserCreation" = false' \
+		"$F0" > "$F1" && mv "$F1" "$F0"
+
+	d=$(date +%Y%m%d%H%M)
+	cp mattermost/config/config.json mattermost/config/config.json.$d
+	mv "$F0" mattermost/config/config.json
+
 fi
 
 
-#
-# Configure Mattermost
-# Maybe use jq?
-diff -u etc/mattermost-config.json mattermost/config/config.json
-# Update the Config....
-cat etc/mattermost-config.json > new-config.json
-F0="new-config.json"
-F1="tmp-config.json"
-
-jq --tab ".\"ServiceSettings\".\"SiteURL\" = \"${OPENTHC_CHAT_ORIGIN}\"" \
-	"$F0" > "$F1" && mv "$F1" "$F0"
-
-jq --tab '."ServiceSettings"."ListenAddress" = "127.0.0.1:8065"' \
-	"$F0" > "$F1" && mv "$F1" "$F0"
-
-# Enable mmctl --local
-jq --tab '."ServiceSettings"."EnableLocalMode" = true' \
-	"$F0" > "$F1" && mv "$F1" "$F0"
-
-# Allow user to Create from the UI
-jq --tab '."ServiceSettings"."EnableUserCreation" = false' \
-	"$F0" > "$F1" && mv "$F1" "$F0"
 
 #
 # Start Mattermost
 ./mattermost.sh start
+
+# Wait ?
+
+if [ ! ~/.config/mmctl/config ]
+then
+	echo "Login with:"
+	echo "  mattermost/bin/mmctl auth login ${OPENTHC_CHAT_ORIGIN}"
+	echo "Then update etc/config.php"
+fi
