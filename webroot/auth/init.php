@@ -1,6 +1,8 @@
 <?php
 /*
  * Actually Connect and Fake the Mattermost Session
+ *
+ * SPDX-License-Identifier: MIT
  */
 
 require_once('../../boot.php');

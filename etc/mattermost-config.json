@@ -15,8 +15,7 @@
         "LetsEncryptCertificateCacheFile": "./config/letsencrypt.cache",
         "Forward80To443": false,
         "TrustedProxyIPHeader": [
-            "X-Forwarded-For",
-            "X-Real-IP"
+            "X-Forwarded-For"
         ],
         "ReadTimeout": 300,
         "WriteTimeout": 300,

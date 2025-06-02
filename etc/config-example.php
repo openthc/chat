@@ -15,6 +15,10 @@ $cfg['database'] = [
 	],
 ];
 
+$cfg['redis'] = [
+	'hostname' => '10.4.20.69',
+];
+
 // OpenTHC Services
 $cfg['openthc'] = [
 	'chat' => [

@@ -1,6 +1,8 @@
 <?php
 /**
  * Authentication from the OpenTHC SSO Comes Back Here
+ *
+ * SPDX-License-Identifier: MIT
  */
 
 require_once('../../boot.php');
@@ -29,9 +31,6 @@ if (empty($SES)) {
 }
 
 $ocp = _oauth_provider($SES['id']);
-
-// __exit_text($SES);
-
 
 // Check State
 // $this->checkState();
