@@ -54,12 +54,15 @@ function _oauth_provider($s)
  */
 function doJavaScriptRedirect($url) : void
 {
+	header('cache-control', 'no-store');
+
 	$html = <<<HTML
 	<!DOCTYPE html>
 	<html lang="en">
 	<head>
-		<meta charset=utf-8>
-		<title>Redirecting...</title>
+	<meta charset=utf-8>
+	<meta http-equiv="cache-control" content="no-store">
+	<title>Redirecting...</title>
 	</head>
 	<body>
 	<script>
