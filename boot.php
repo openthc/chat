@@ -80,7 +80,8 @@ function _oauth_provider($s)
  */
 function doJavaScriptRedirect($url) : void
 {
-	header('cache-control', 'no-store');
+	// breaks the reverse proxy
+	// header('cache-control', 'no-store');
 
 	$html = <<<HTML
 	<!DOCTYPE html>
