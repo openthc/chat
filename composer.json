@@ -7,7 +7,8 @@
 			"vendor/erusev/parsedown-extra/test"
 		],
 		"psr-4": {
-			"App\\": "./lib"
+			"OpenTHC\\Chat\\": "./lib",
+			"OpenTHC\\Chat\\Test\\": "./test"
 		}
 	},
 	"require": {
@@ -15,6 +16,6 @@
 	},
 	"require-dev": {
 		"phpstan/phpstan": "2.1.8",
-		"phpunit/phpunit": "9.6.20"
+		"phpunit/phpunit": "9.6.23"
 	}
 }
