@@ -34,8 +34,9 @@ if (empty($SES['Contact']['id'])) {
 $Chat_Contact = [];
 $Chat_Contact['email'] = $SES['Contact']['username'];
 $Chat_Contact['email'] = strtolower($Chat_Contact['email']);
-// $Chat_Contact['username'] = preg_replace('/[^\w\-]+/', '-', $SES['Contact']['username']);
-$Chat_Contact['username'] = strtok($SES['Contact']['username'], '@');
+$Chat_Contact['username'] = strtok($SES['Contact']['email'], '@');
+$Chat_Contact['username'] = preg_replace('/[^\w\.\-]+/', '', $Chat_Contact['username']);
+
 
 // Locate Mattermost User
 $dbc = _dbc();
@@ -50,12 +51,48 @@ $res = $dbc->fetchRow($sql, [
 	':u0' => $Chat_Contact['username'],
 ]);
 if (empty($res['id'])) {
-	_exit_html('<h1>Invalid Account [CAI-062]</h1><p>Perhaps you should <a href="https://openthc.com/chat/invite">Request an Invite</a></p>', 401);
-}
-$Chat_Contact = $res;
 
-$pw0_hash = $res['password'];
-// $pw0_hash = password_hash('passweed', PASSWORD_BCRYPT);
+	$cfg = \OpenTHC\Config::get('mattermost');
+	$key = \OpenTHC\Config::get('mattermost/root-sk');
+
+	// Login as Admin
+	if (empty($key)) {
+
+		$res = $mmc->post('users/login', [ 'json' => [
+			'login_id' => $cfg['root-username'],
+			'password' => $cfg['root-password'],
+		]]);
+		if (200 != $res->getStatusCode()) {
+			_exit_html('<h1>Failed to Connect [WAI-088]</h1>', 500);
+		}
+
+		$key = $res->getHeaderLine('token');
+
+	}
+
+	$mmc = _mm_client($key);
+
+	$Chat_Contact['password'] = _ulid();
+
+	$res = $mmc->post('users', [ 'json' => $Chat_Contact ]);
+	if (201 != $res->getStatusCode()) {
+		$res = $res->getBody()->getContents();
+		_exit_html('<h1>Failed to Connect</h1>' . '<pre>' . $res . '</pre>', 500);
+	}
+	// $res = $this->assertValidResponse($res, 201);
+	$res = json_decode( $res->getBody() );
+	// var_dump($res);
+	// $Chat_Contact['id'] =
+	// _exit_html('<h1>Invalid Account [CAI-062]</h1><p>Perhaps you should <a href="https://openthc.com/chat/invite">Request an Invite</a></p>', 401);
+
+	$Chat_Contact['id'] = $res['id'];
+
+} else {
+	$Chat_Contact['id'] = $res['id'];
+}
+
+
+// Set Fake Password
 $pw1_text = _ulid();
 $pw1_hash = password_hash($pw1_text, PASSWORD_BCRYPT);
 
@@ -113,9 +150,11 @@ do {
 
 } while ($try_idx <= $try_max);
 
+// Set Chat Password to the one from our SSO
+$Chat_Contact['password'] = $SES['Contact']['password'];
 $dbc->query('UPDATE users SET password = :p1 WHERE id = :c0', [
 	':c0' => $Chat_Contact['id'],
-	':p1' => $pw0_hash,
+	':p1' => $Chat_Contact['password'],
 ]);
 
 switch ($res_code) {
@@ -123,16 +162,16 @@ case 200:
 	// OK
 	break;
 case 401:
-	_exit_text('Authentication Failure', 401);
+	_exit_html('<h1>Authentication Failure [CAI-165]</h1>', $res_code);
 	break;
 case 502:
-	_exit_text('Chat Services Offline', 502);
+	_exit_html('<h1>Chat Services Offline [CAI-168]</h1>', $res_code);
 	break;
 }
 
 $res = json_decode($res_body, true);
 if (empty($res['id'])) {
-	_exit_text('Invalid [CAI-122]', 401);
+	_exit_html('<h1>Invalid Connection [CAI-122]</h1>', 401);
 }
 
 // Copy Cookies
