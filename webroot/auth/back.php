@@ -79,7 +79,7 @@ try {
 	$SES['Contact'] = $tok1['Contact'];
 	$SES['Company'] = $tok1['Company'];
 
-	$rdb->set($SES['key'], json_encode($SES));
+	$rdb->set($SES['key'], json_encode($SES), [ 'ex' => 240 ]);
 
 	header('HTTP/1.1 302 Found', true, 302);
 	header(sprintf('location: /auth/init?_=%s', $SES['id']));
