@@ -58,31 +58,9 @@ https://chat.openthc.example.com/admin_console/user_management/permissions/syste
 See ./etc/Caddyfile-example
 
 
-## Configure Nginx - v0
-
-Use nginx as a proxy, following the example configuration.
-It's default configuration is to forward all traffic, except for PHP stuff, to Mattermost.
-Check out ./etc/nginx.conf and symlink into `/etc/nginx/sites-enabled/`
-
-- https://docs.mattermost.com/install/config-proxy-nginx.html
-
-
-## Configure Certbot
-
- * @see https://eff-certbot.readthedocs.io/en/stable/using.html#setting-up-automated-renewal
-
-Add this so Nginx restarts when it gets a new certificate
-
-```
-cat <<<EOF > /etc/letsencrypt/renewal-hooks/deploy/nginx.sh
-#!/bin/sh
-
-systemctl restart nginx
-EOF
-chmod 0755 /etc/letsencrypt/renewal-hooks/deploy/nginx.sh
-```
-
 ## Upgrade
+
+- https://docs.mattermost.com/upgrade/upgrading-mattermost-server.html
 
 ```
 OLD_VERSION="6.1.0"
