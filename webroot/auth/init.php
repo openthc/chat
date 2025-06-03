@@ -8,26 +8,26 @@
 require_once('../../boot.php');
 
 if (empty($_GET['_'])) {
-	_exit_html('<p>Invalid Link [CAI-009]</p>', 400);
+	_exit_html('<h1>Invalid Link [CAI-009]</h1>', 400);
 }
 
 if ( ! preg_match('/^[\w\-]{43}$/', $_GET['_'])) {
-	_exit_html('<p>Invalid Link [CAI-013]</p>', 400);
+	_exit_html('<h1>Invalid Link [CAI-013]</h1>', 400);
 }
 
 $rdb = \OpenTHC\Service\Redis::factory();
 $key = sprintf('/chat/auth/session/%s', $_GET['_']);
 $SES = $rdb->get($key);
 if (empty($SES)) {
-	_exit_html('<p>Invalid Link [CAI-020]</p>', 400);
+	_exit_html('<h1>Invalid Link [CAI-020]</h1>', 400);
 }
 $SES = json_decode($SES, true);
 if (empty($SES)) {
-	_exit_html('<p>Invalid Link [CAI-024]</p>', 400);
+	_exit_html('<h1>Invalid Link [CAI-024]</h1>', 400);
 }
 
 if (empty($SES['Contact']['id'])) {
-	_exit_text('Invalid Request [CAI-011]', 400);
+	_exit_html('<h1>Invalid Request [CAI-011]</h1>', 400);
 }
 
 // Chat System Contact Data
@@ -80,7 +80,7 @@ if (empty($res['id'])) {
 		_exit_html('<h1>Failed to Connect</h1>' . '<pre>' . $res . '</pre>', 500);
 	}
 	// $res = $this->assertValidResponse($res, 201);
-	$res = json_decode( $res->getBody() );
+	$res = json_decode( $res->getBody(), true );
 	// var_dump($res);
 	// $Chat_Contact['id'] =
 	// _exit_html('<h1>Invalid Account [CAI-062]</h1><p>Perhaps you should <a href="https://openthc.com/chat/invite">Request an Invite</a></p>', 401);
