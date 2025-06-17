@@ -25,7 +25,7 @@ fi
 OPENTHC_CHAT_ORIGIN="${OPENTHC_CHAT_ORIGIN:-}"
 if [ -z "$OPENTHC_CHAT_ORIGIN" ]
 then
-	echo "Set Env"
+	echo "Set OPENTHC_CHAT_ORIGIN"
 	exit 1
 fi
 
@@ -35,6 +35,9 @@ fi
 MATTERMOST_VERSION="10.6.1"
 if [ ! -d "mattermost-${MATTERMOST_VERSION}" ]
 then
+
+	echo "Downloading Server"
+
 	mkdir tmp
 	cd tmp
 	wget https://releases.mattermost.com/${MATTERMOST_VERSION}/mattermost-${MATTERMOST_VERSION}-linux-amd64.tar.gz
