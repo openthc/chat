@@ -32,7 +32,8 @@ fi
 
 #
 # Install Mattermost
-MATTERMOST_VERSION="10.6.1"
+MATTERMOST_VERSION="10.7.0"
+MATTERMOST_PACKAGE="mattermost-team-${MATTERMOST_VERSION}-linux-amd64.tar.gz"
 if [ ! -d "mattermost-${MATTERMOST_VERSION}" ]
 then
 
@@ -40,9 +41,8 @@ then
 
 	mkdir tmp
 	cd tmp
-	wget --quiet \
-		https://releases.mattermost.com/${MATTERMOST_VERSION}/mattermost-${MATTERMOST_VERSION}-linux-amd64.tar.gz
-	tar -zxf mattermost-${MATTERMOST_VERSION}-linux-amd64.tar.gz
+	wget --quiet https://releases.mattermost.com/${MATTERMOST_VERSION}/${MATTERMOST_PACKAGE}
+	tar -zxf "${MATTERMOST_PACKAGE}"
 	mv mattermost ../mattermost-${MATTERMOST_VERSION}
 	cd ..
 	rm -fr ./tmp
