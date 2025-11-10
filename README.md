@@ -34,7 +34,7 @@ Then disable after the first user is added.
 ./mattermost/bin/mmctl auth login https://chat.openthc.example.com/
 ```
 
-Then put the token from `~/.config/mmctl/config` into `etc/config.php`
+Then put the token from `~/.config/mmctl/config` into `etc/config.php` as `mattermost.root-sk`
 
 
 ## Create Teams
