@@ -20,7 +20,7 @@
 	timeoutForSmallTests="2"
 	timeoutForMediumTests="8"
 	timeoutForLargeTests="32"
-	verbose="true"
+	verbose="false"
 	>
 
 	<php>
@@ -29,7 +29,10 @@
 		<!-- And one can overwrite these values from standard process environment vars -->
 
 		<env name="OPENTHC_TEST_ORIGIN" value="https://chat.openthc.example.com" />
+
+		<!-- If truthy, it will spew debug -->
 		<env name="OPENTHC_TEST_HTTP_DEBUG" value="" />
+
 		<env name="OPENTHC_TEST_WEBDRIVER_URL" value="" />
 
 		<env name="OPENTHC_TEST_CONTACT0_USERNAME" value="" />

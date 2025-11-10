@@ -58,6 +58,8 @@ if (empty($res['id'])) {
 	// Login as Admin
 	if (empty($key)) {
 
+		$mmc = _mm_client();
+
 		$res = $mmc->post('users/login', [ 'json' => [
 			'login_id' => $cfg['root-username'],
 			'password' => $cfg['root-password'],

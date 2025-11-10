@@ -62,15 +62,19 @@ class Config_Test extends \OpenTHC\Chat\Test\Base
 		$key_list = [
 			'database/chat/dsn',
 
+			'redis/hostname',
+
 			'openthc/chat/id',
 			'openthc/chat/origin',
-
 
 			'openthc/sso/origin',
 			'openthc/sso/public',
 			'openthc/sso/client-id',
 			'openthc/sso/client-pk',
 			'openthc/sso/client-sk',
+
+			'mattermost',
+			'mattermost/root-sk',
 
 		];
 
